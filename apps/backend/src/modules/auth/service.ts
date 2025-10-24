@@ -1,6 +1,6 @@
 import { status } from "elysia";
 import type { AdminAuthModel } from "./model";
-import { randomUUIDv5 } from "bun";
+import { randomUUID } from "crypto";
 
 // LEGACY interface, will be replaced with dedicated sql table
 const AdminSessions = new Map<string, number>();
@@ -24,7 +24,7 @@ export abstract class AdminAuth {
   }
 
   private static genAndSaveToken(): string {
-    const token = randomUUIDv5(String(Math.random()), "x500", "base64url");
+    const token = randomUUID();
     AdminSessions.set(token, Date.now() / 3600);
     return token;
   }

@@ -28,8 +28,8 @@ export async function createUserTable() {
     CREATE TABLE IF NOT EXISTS user (
       id TEXT PRIMARY KEY,
       username TEXT NOT NULL UNIQUE,
-      createdAt TEXT NOT NULL,
-      totpSecret TEXT
+      created_at TEXT NOT NULL,
+      totp_secret TEXT
     )
   `;
 }
