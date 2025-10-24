@@ -28,9 +28,7 @@ export const user = new Elysia({ prefix: "/user" })
   .post(
     "/totp",
     async ({ body }) => {
-      const totpValid = await Auth.verifyTOTP(body);
-
-      if (!totpValid) return status(400, "TOTP code invalid");
+      await Auth.verifyTOTP(body);
 
       const response = await User.editUser(body.id, { totpVerified: true });
       return response;

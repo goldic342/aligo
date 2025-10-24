@@ -32,6 +32,8 @@ export abstract class User {
     const user = await User.getUserById(id);
     if (!user) throw status(404, "Not Found");
 
+    if (user.totpVerified) throw status(400, "TOTP already verified");
+
     return { uri: getTOTPURI(user.id, user.totpSecret) };
   }
 
