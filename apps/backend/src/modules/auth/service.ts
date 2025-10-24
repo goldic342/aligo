@@ -3,6 +3,7 @@ import * as OTPAuth from "otpauth";
 import type { AdminAuthModel, AuthModel } from "./model";
 import { randomUUID } from "crypto";
 import { User } from "../user/service";
+import sqlite from "../../db/client";
 
 export abstract class Auth {
   static async verifyTOTP({
@@ -25,9 +26,6 @@ export abstract class Auth {
   }
 }
 
-// LEGACY interface, will be replaced with dedicated sql table
-const AdminSessions = new Map<string, number>();
-
 export abstract class AdminAuth {
   static async signIn({
     username,
@@ -42,23 +40,30 @@ export abstract class AdminAuth {
 
     return {
       username: username,
-      token: this.genAndSaveToken(),
+      token: await this.genAndSaveToken(),
     };
   }
 
-  private static genAndSaveToken(): string {
+  private static async genAndSaveToken(): Promise<string> {
     const token = randomUUID();
-    AdminSessions.set(token, Date.now() / 3600);
+    await sqlite`INSERT INTO "adminSession" ${sqlite({ token: token, createdAt: Date.now() })}
+    RETURNING *`;
     return token;
   }
+
   static async validateSession(token?: string): Promise<void> {
     if (!token) throw status(401, "Unauthorized");
 
-    const expiresAt = AdminSessions.get(token);
-    if (!expiresAt) throw status(401, "Unauthorized");
+    const [session] =
+      await sqlite`SELECT * FROM "adminSession" WHERE token=${token}`;
+
+    if (!session) throw status(401, "Unauthorized");
 
     // Ensure token not expired
-    if (expiresAt + Number(Bun.env.ROOT_SESSION_TTL) < Date.now() / 3600)
+    if (
+      session.createdAt + Number(Bun.env.ROOT_SESSION_TTL) * 1000 <
+      Date.now()
+    )
       throw status(401, "Session expired");
   }
 }
