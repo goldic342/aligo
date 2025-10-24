@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
-import { AdminAuth, Auth } from "./service";
-import { AdminAuthModel, AuthModel } from "./model";
+import { AdminAuth } from "./service";
+import { AdminAuthModel } from "./model";
+import { ok } from "@shared/model/ok";
 
 export const auth = new Elysia({ prefix: "/auth" });
 
@@ -11,7 +12,7 @@ export const adminAuth = new Elysia({ prefix: "/admin" }).post(
 
     aligo_admin.value = response.token;
 
-    return response;
+    return { ok: true };
   },
-  { body: AdminAuthModel.signInBody },
+  { body: AdminAuthModel.signInBody, response: ok },
 );

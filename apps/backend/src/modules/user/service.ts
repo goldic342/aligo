@@ -32,14 +32,21 @@ export abstract class User {
     const user = await User.getUserById(id);
     if (!user) throw status(404, "Not Found");
 
-    if (user.totpVerified) throw status(400, "TOTP already verified");
+    if (user.totpVerified)
+      throw status(
+        400,
+        "TOTP already verified" satisfies UserModel.TOTPAlreadyVerified,
+      );
 
     return { uri: getTOTPURI(user.id, user.totpSecret) };
   }
 
   static async getUserById(id: string): Promise<UserModel.user> {
     const [user] = await sqlite`SELECT * FROM user WHERE id=${id}`;
-
+    return user;
+  }
+  static async getUserByUsername(username: string): Promise<UserModel.user> {
+    const [user] = await sqlite`SELECT * FROM user WHERE username=${username}`;
     return user;
   }
 

@@ -1,5 +1,6 @@
 import { t } from "elysia";
 import sqlite from "@db/client";
+import { TOTP } from "otpauth";
 
 export namespace AuthModel {
   export const verifyTOTPBody = t.Object({
@@ -7,7 +8,16 @@ export namespace AuthModel {
     totpToken: t.String(),
   });
 
+  export const logInBody = t.Object({
+    username: t.String(),
+    totpToken: t.String(),
+  });
+
+  export type logInBody = typeof logInBody.static;
   export type verifyTOTPBody = typeof verifyTOTPBody.static;
+
+  export const TOTPInvalid = t.Literal("TOTP code invalid");
+  export type TOTPInvalid = typeof TOTPInvalid.static;
 }
 
 export namespace AdminAuthModel {

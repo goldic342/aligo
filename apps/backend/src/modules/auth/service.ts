@@ -4,20 +4,38 @@ import { randomUUID } from "crypto";
 import { User } from "@modules/user/service";
 import sqlite from "@db/client";
 import { verifyTOTP } from "@shared/auth/totp";
+import { ok } from "@shared/model/ok";
 
 export abstract class Auth {
   static async verifyTOTP({
     id,
     totpToken,
-  }: AuthModel.verifyTOTPBody): Promise<boolean> {
+  }: AuthModel.verifyTOTPBody): Promise<ok> {
     const user = await User.getUserById(id);
     if (!user) throw status(404, "Not Found");
 
     const valid = verifyTOTP(user.totpSecret, totpToken, user.id);
 
-    if (!valid) throw status(400, "TOTP code invalid");
+    if (!valid)
+      throw status(400, "TOTP code invalid" satisfies AuthModel.TOTPInvalid);
 
-    return true;
+    return { ok: true };
+  }
+
+  static async logIn({
+    username,
+    totpToken,
+  }: AuthModel.logInBody): Promise<boolean> {
+    const user = await User.getUserByUsername(username);
+
+    if (!user) throw status(404, "Not Found");
+
+    const valid = verifyTOTP(user.totpSecret, totpToken, user.id);
+
+    if (!valid)
+      throw status(400, "TOTP code invalid" satisfies AuthModel.TOTPInvalid);
+
+    return true; // Return session cookie here
   }
 }
 

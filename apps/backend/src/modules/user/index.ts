@@ -4,6 +4,7 @@ import { User } from "./service";
 import { UserModel } from "./model";
 import { Auth } from "@modules/auth/service";
 import { AuthModel } from "@modules/auth/model";
+import { ok } from "@shared/model/ok";
 
 export const user = new Elysia({ prefix: "/user" })
   .use(adminAuth)
@@ -31,7 +32,7 @@ export const user = new Elysia({ prefix: "/user" })
       await Auth.verifyTOTP(body);
 
       const response = await User.editUser(body.id, { totpVerified: true });
-      return response;
+      return { ok: true };
     },
-    { body: AuthModel.verifyTOTPBody },
+    { body: AuthModel.verifyTOTPBody, response: ok },
   );

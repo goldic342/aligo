@@ -32,6 +32,9 @@ export namespace UserModel {
 
   export type totpURIBody = typeof totpURIBody.static;
   export type totpURIResponse = typeof totpURIResponse.static;
+
+  export const TOTPAlreadyVerified = t.Literal("TOTP already verified");
+  export type TOTPAlreadyVerified = typeof TOTPAlreadyVerified.static;
 }
 
 export async function createUserTable() {
