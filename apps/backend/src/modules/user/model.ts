@@ -1,5 +1,5 @@
 import { t } from "elysia";
-import sqlite from "../../db/client";
+import sqlite from "@db/client";
 
 export namespace UserModel {
   export const user = t.Object({

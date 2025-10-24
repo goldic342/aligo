@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
-import { user } from "./modules/user";
-import { adminAuth, auth } from "./modules/auth";
-import setupTables from "./db/setup";
+import { user } from "@modules/user";
+import { adminAuth, auth } from "@modules/auth";
+import setupTables from "@db/setup";
 
 setupTables();
 console.log("Database setup finished");

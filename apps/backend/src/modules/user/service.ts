@@ -1,8 +1,9 @@
 import * as OTPAuth from "otpauth";
 import { UserModel } from "./model";
-import sqlite from "../../db/client";
+import sqlite from "@db/client";
 import { randomUUID } from "crypto";
 import { status } from "elysia";
+import { generateTOTP, getTOTPURI } from "@shared/auth/totp";
 
 export abstract class User {
   static async create({
@@ -16,12 +17,8 @@ export abstract class User {
       totpSecret: "",
     };
 
-    const totp = new OTPAuth.TOTP({
-      issuer: "aligo",
-      label: userData.id,
-    });
-
-    userData.totpSecret = totp.secret.base32;
+    const totp = generateTOTP(userData.id);
+    userData.totpSecret = totp.secret;
 
     const [user] = await sqlite`
   INSERT INTO user ${sqlite(userData)}
@@ -34,18 +31,23 @@ export abstract class User {
   }: UserModel.totpURIBody): Promise<UserModel.totpURIResponse> {
     const user = await User.getUserById(id);
     if (!user) throw status(404, "Not Found");
-    const totp = new OTPAuth.TOTP({
-      issuer: "aligo",
-      label: id,
-      secret: OTPAuth.Secret.fromBase32(user.totpSecret),
-    });
 
-    return { uri: totp.toString() };
+    return { uri: getTOTPURI(user.id, user.totpSecret) };
   }
 
   static async getUserById(id: string): Promise<UserModel.user> {
     const [user] = await sqlite`SELECT * FROM user WHERE id=${id}`;
 
     return user;
+  }
+
+  static async editUser(id: string, editMap: object): Promise<UserModel.user> {
+    const [response] = await sqlite`
+UPDATE user 
+SET ${sqlite(editMap)}
+WHERE id=${id}
+`;
+
+    return response;
   }
 }

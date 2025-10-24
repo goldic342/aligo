@@ -1,5 +1,5 @@
 import { t } from "elysia";
-import sqlite from "../../db/client";
+import sqlite from "@db/client";
 
 export namespace AuthModel {
   export const verifyTOTPBody = t.Object({

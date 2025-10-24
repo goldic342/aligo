@@ -1,7 +1,9 @@
-import { Elysia } from "elysia";
-import { adminAuth } from "../auth/dependencies";
+import { Elysia, status } from "elysia";
+import { adminAuth } from "@modules/auth/dependencies";
 import { User } from "./service";
 import { UserModel } from "./model";
+import { Auth } from "@modules/auth/service";
+import { AuthModel } from "@modules/auth/model";
 
 export const user = new Elysia({ prefix: "/user" })
   .use(adminAuth)
@@ -13,14 +15,25 @@ export const user = new Elysia({ prefix: "/user" })
     },
     { body: UserModel.createBody },
   )
-  .post(
-    "/totp",
-    async ({ body }) => {
-      const response = await User.getTOTPURI(body);
-
+  .get(
+    "/totp/:id",
+    async ({ params }) => {
+      const response = await User.getTOTPURI(params);
       return response;
     },
     {
-      body: UserModel.totpURIBody,
+      params: UserModel.totpURIBody,
     },
+  )
+  .post(
+    "/totp",
+    async ({ body }) => {
+      const totpValid = await Auth.verifyTOTP(body);
+
+      if (!totpValid) return status(400, "TOTP code invalid");
+
+      const response = await User.editUser(body.id, { totpVerified: true });
+      return response;
+    },
+    { body: AuthModel.verifyTOTPBody },
   );

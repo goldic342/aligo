@@ -1,9 +1,9 @@
 import { status } from "elysia";
-import * as OTPAuth from "otpauth";
 import type { AdminAuthModel, AuthModel } from "./model";
 import { randomUUID } from "crypto";
-import { User } from "../user/service";
-import sqlite from "../../db/client";
+import { User } from "@modules/user/service";
+import sqlite from "@db/client";
+import { verifyTOTP } from "@shared/auth/totp";
 
 export abstract class Auth {
   static async verifyTOTP({
@@ -11,18 +11,13 @@ export abstract class Auth {
     totpToken,
   }: AuthModel.verifyTOTPBody): Promise<boolean> {
     const user = await User.getUserById(id);
-
     if (!user) throw status(404, "Not Found");
 
-    const totp = new OTPAuth.TOTP({
-      issuer: "aligo",
-      label: id,
-      secret: user.totpSecret,
-    });
+    const valid = verifyTOTP(user.totpSecret, totpToken, user.id);
 
-    const delta = totp.validate({ token: totpToken, window: 1 });
+    if (!valid) throw status(400, "TOTP code invalid");
 
-    return delta !== null;
+    return true;
   }
 }
 
