@@ -1,4 +1,3 @@
-import { status } from "elysia";
 import * as OTPAuth from "otpauth";
 import { UserModel } from "./model";
 import sqlite from "../../db/client";
@@ -23,7 +22,6 @@ export abstract class User {
     const response = await sqlite`
   INSERT INTO user ${sqlite(userData)}
   RETURNING *`;
-    console.log(response);
-    return response;
+    return { username, id: response[0].id };
   }
 }
