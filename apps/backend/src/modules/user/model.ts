@@ -6,7 +6,8 @@ export namespace UserModel {
     id: t.String(), // uuid4
     username: t.String(),
     createdAt: t.Date(),
-    totpSecret: t.Optional(t.String()),
+    totpSecret: t.String(),
+    totpVerified: t.Boolean(),
   });
 
   export const createBody = t.Object({
@@ -18,18 +19,29 @@ export namespace UserModel {
     id: t.String(),
   });
 
+  export const totpURIBody = t.Object({
+    id: t.String(),
+  });
+  export const totpURIResponse = t.Object({
+    uri: t.String(),
+  });
+
   export type user = typeof user.static;
   export type createBody = typeof createBody.static;
   export type createResponse = typeof createResponse.static;
+
+  export type totpURIBody = typeof totpURIBody.static;
+  export type totpURIResponse = typeof totpURIResponse.static;
 }
 
 export async function createUserTable() {
   await sqlite`
-    CREATE TABLE IF NOT EXISTS user (
-      id TEXT PRIMARY KEY,
-      username TEXT NOT NULL UNIQUE,
-      created_at TEXT NOT NULL,
-      totp_secret TEXT
+    CREATE TABLE IF NOT EXISTS "user" (
+      "id" TEXT PRIMARY KEY,
+      "username" TEXT NOT NULL UNIQUE,
+      "createdAt" TEXT NOT NULL,
+      "totpSecret" TEXT NOT NULL,
+      "totpVerified" BOOLEAN DEFAULT 0
     )
   `;
 }
