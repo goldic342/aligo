@@ -1,4 +1,5 @@
 import { t } from "elysia";
+import sqlite from "../../db/client";
 
 export namespace UserModel {
   export const user = t.Object({
@@ -20,4 +21,15 @@ export namespace UserModel {
   export type user = typeof user.static;
   export type createBody = typeof createBody.static;
   export type createResponse = typeof createResponse.static;
+}
+
+export async function createUserTable() {
+  await sqlite`
+    CREATE TABLE IF NOT EXISTS user (
+      id TEXT PRIMARY KEY,
+      username TEXT NOT NULL UNIQUE,
+      createdAt TEXT NOT NULL,
+      totpSecret TEXT
+    )
+  `;
 }
