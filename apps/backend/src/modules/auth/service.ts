@@ -12,8 +12,6 @@ export abstract class Auth {
     totpToken,
   }: AuthModel.verifyTOTPBody): Promise<ok> {
     const user = await User.getUserById(id);
-    if (!user) throw status(404, "Not Found");
-
     const valid = verifyTOTP(user.totpSecret, totpToken, user.id);
 
     if (!valid)
@@ -25,17 +23,14 @@ export abstract class Auth {
   static async logIn({
     username,
     totpToken,
-  }: AuthModel.logInBody): Promise<boolean> {
+  }: AuthModel.logInBody): Promise<ok> {
     const user = await User.getUserByUsername(username);
-
-    if (!user) throw status(404, "Not Found");
-
     const valid = verifyTOTP(user.totpSecret, totpToken, user.id);
 
     if (!valid)
       throw status(400, "TOTP code invalid" satisfies AuthModel.TOTPInvalid);
 
-    return true; // Return session cookie here
+    return { ok: true }; // Return session cookie here
   }
 }
 

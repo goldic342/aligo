@@ -1,9 +1,20 @@
 import { Elysia } from "elysia";
-import { AdminAuth } from "./service";
-import { AdminAuthModel } from "./model";
+import { AdminAuth, Auth } from "./service";
+import { AdminAuthModel, AuthModel } from "./model";
 import { ok } from "@shared/model/ok";
 
-export const auth = new Elysia({ prefix: "/auth" });
+export const auth = new Elysia({ prefix: "/auth" }).post(
+  "/log-in",
+  async ({ body }) => {
+    const response = await Auth.logIn(body);
+    return response;
+  },
+
+  {
+    body: AuthModel.logInBody,
+    response: ok,
+  },
+);
 
 export const adminAuth = new Elysia({ prefix: "/admin" }).post(
   "/sign-in",

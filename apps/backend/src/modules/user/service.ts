@@ -1,4 +1,3 @@
-import * as OTPAuth from "otpauth";
 import { UserModel } from "./model";
 import sqlite from "@db/client";
 import { randomUUID } from "crypto";
@@ -43,10 +42,14 @@ export abstract class User {
 
   static async getUserById(id: string): Promise<UserModel.user> {
     const [user] = await sqlite`SELECT * FROM user WHERE id=${id}`;
+    if (!user)
+      throw status(404, "User Not Found" satisfies UserModel.UserNotFound);
     return user;
   }
   static async getUserByUsername(username: string): Promise<UserModel.user> {
     const [user] = await sqlite`SELECT * FROM user WHERE username=${username}`;
+    if (!user)
+      throw status(404, "User Not Found" satisfies UserModel.UserNotFound);
     return user;
   }
 

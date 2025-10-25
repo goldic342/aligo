@@ -35,6 +35,8 @@ export namespace UserModel {
 
   export const TOTPAlreadyVerified = t.Literal("TOTP already verified");
   export type TOTPAlreadyVerified = typeof TOTPAlreadyVerified.static;
+  export const UserNotFound = t.Literal("User Not Found");
+  export type UserNotFound = typeof UserNotFound.static;
 }
 
 export async function createUserTable() {
